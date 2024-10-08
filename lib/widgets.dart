@@ -40,7 +40,13 @@ class CellWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => bloc.revealCell(),
+      onTap: () {
+        final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
+        bloc.revealCell(cellCollectionBloc.currentCells); // Pass all cells
+      },
+
+
+
       onLongPress: () => bloc.toggleFlag(),
       child: StreamBuilder<CellState>(
         stream: bloc.cellStateStream,

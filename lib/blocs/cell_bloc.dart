@@ -11,11 +11,47 @@ class CellBloc {
     _cellStateController.add(_cellState);
   }
 
-  void revealCell() {
+  void revealCell(List<CellBloc> allCells) {
     if (!_cellState.isRevealed && !_cellState.isFlagged) {
       _cellState.isRevealed = true;
       _cellStateController.add(_cellState);
+
+      // If the revealed cell has no neighboring mines, reveal neighbors
+      if (_cellState.neighborMineCount == 0) {
+        _revealNeighbors(allCells);
+      }
     }
+  }
+
+  void _revealNeighbors(List<CellBloc> allCells) {
+    for (int dx = -1; dx <= 1; dx++) {
+      for (int dy = -1; dy <= 1; dy++) {
+        if (dx == 0 && dy == 0) continue; // Skip the current cell
+
+        int neighborX = _cellState.x + dx;
+        int neighborY = _cellState.y + dy;
+
+        if (_isInBounds(neighborX, neighborY)) {
+          int neighborId = _getId(neighborX, neighborY);
+
+          CellBloc? neighborBloc = allCells.firstWhere(
+            (cell) => cell._cellState.x == neighborX && cell._cellState.y == neighborY,
+            orElse: () => CellBloc(CellState(neighborX, neighborY, hasMine: true)) // Dummy default CellBloc, adjust accordingly
+          );
+
+          if (!neighborBloc._cellState.isRevealed && !neighborBloc._cellState.hasMine) {
+            neighborBloc.revealCell(allCells);  // Recursively reveal neighbors
+          }
+
+        }
+      }
+    }
+  }
+
+  int _getId(int x, int y) => x + y * (_cellState.x + 1);
+
+  bool _isInBounds(int x, int y) {
+    return x >= 0 && x < 10 && y >= 0 && y < 10; // Update according to your grid size
   }
 
   void toggleFlag() {
@@ -39,6 +75,7 @@ class CellCollectionBloc {
 
   Stream<List<CellBloc>> get cellsStream => _cellCollectionController.stream;
 
+  List<CellBloc> get currentCells => _cellBlocs;
   int get gridWidth => _gameAreaModel.width;
   int get gridHeight => _gameAreaModel.height;
 
