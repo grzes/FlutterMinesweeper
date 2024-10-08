@@ -1,5 +1,6 @@
 import 'dart:async';
 import '../model/game_area_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';  // Import flutter_bloc
 
 class CellBloc {
   final CellState _cellState;
@@ -67,31 +68,29 @@ class CellBloc {
 }
 
 
-class CellCollectionBloc {
-  final GameAreaModel _gameAreaModel;
-  final List<CellBloc> _cellBlocs = [];
+class CellCollectionBloc extends Cubit<List<CellBloc>> {
+  GameAreaModel _gameAreaModel;
 
-  final _cellCollectionController = StreamController<List<CellBloc>>();
-
-  Stream<List<CellBloc>> get cellsStream => _cellCollectionController.stream;
-
-  List<CellBloc> get currentCells => _cellBlocs;
-  int get gridWidth => _gameAreaModel.width;
-  int get gridHeight => _gameAreaModel.height;
-
-  CellCollectionBloc(this._gameAreaModel) {
+  CellCollectionBloc(this._gameAreaModel) : super([]) {
     _initializeBlocs();
-    _cellCollectionController.add(_cellBlocs);
   }
 
   void _initializeBlocs() {
-    _gameAreaModel.cells.forEach((key, cellState) {
-      _cellBlocs.add(CellBloc(cellState));
-    });
+    final cellBlocs = _gameAreaModel.cells.map((key, cellState) => MapEntry(key, CellBloc(cellState)));
+    emit(cellBlocs.values.toList());  // Emit the initial cell blocs
   }
 
-  void dispose() {
-    _cellBlocs.forEach((bloc) => bloc.dispose());
-    _cellCollectionController.close();
+  void initializeGame() {
+    _gameAreaModel = GameAreaModel(10, 10); // Reset to a new game area
+    _initializeBlocs(); // Reinitialize the cell blocs
+  }
+
+  int get gridWidth => _gameAreaModel.width;
+  int get gridHeight => _gameAreaModel.height;
+
+  @override
+  Future<void> close() {
+    // You can manage disposal of individual CellBloc instances here if necessary
+    return super.close();
   }
 }

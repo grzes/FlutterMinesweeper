@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
 import 'blocs/cell_bloc.dart';
 import 'model/game_area_model.dart';
-import 'blocs/bloc_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';  // Import flutter_bloc
 
-// Grid widget
 class MinesweeperGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cellBloc = BlocProvider.of<CellCollectionBloc>(context);
-
-    return StreamBuilder<List<CellBloc>>(
-      stream: cellBloc.cellsStream,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+    return BlocBuilder<CellCollectionBloc, List<CellBloc>>(
+      builder: (context, cellBlocs) {
+        print('MinesweeperGrid rebuilt with ${cellBlocs.length} cells.');
+        if (cellBlocs.isEmpty) {
           return Center(child: CircularProgressIndicator());
         }
 
-        final cells = snapshot.data!;
         return GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: cellBloc.gridWidth,
+            crossAxisCount: 10, // Adjust based on your grid size
           ),
-          itemCount: cells.length,
+          itemCount: cellBlocs.length,
           itemBuilder: (context, index) {
-            return CellWidget(bloc: cells[index]);
+            return CellWidget(bloc: cellBlocs[index]); // Adjust as per your logic
           },
         );
       },
@@ -42,7 +38,7 @@ class CellWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
-        bloc.revealCell(cellCollectionBloc.currentCells); // Pass all cells
+        bloc.revealCell(cellCollectionBloc.state); // Pass all cells
       },
 
 
