@@ -6,15 +6,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class MinesweeperGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CellCollectionBloc, List<CellBloc>>(
-      builder: (context, cellBlocs) {
-        if (cellBlocs.isEmpty) {
-          return Center(child: CircularProgressIndicator());
-        }
+    return ScrollConfiguration(
+      behavior: NoScrollbarScrollBehavior(),
+      child: BlocBuilder<CellCollectionBloc, List<CellBloc>>(
+        builder: (context, cellBlocs) {
+          if (cellBlocs.isEmpty) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-        // Fixed height and width for the entire grid
-        return SingleChildScrollView(
-          child: Center(
+          // Fixed height and width for the entire grid
+          return Center(
             child: Container(
               width: 220, // 10 cells * 20 pixels + spacing
               height: 220, // 10 cells * 20 pixels + spacing
@@ -30,9 +31,9 @@ class MinesweeperGrid extends StatelessWidget {
                 children: cellBlocs.map((cellBloc) => CellWidget(bloc: cellBloc)).toList(), // Generate cells
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -45,16 +46,19 @@ class CellWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
-
     return GestureDetector(
       onTap: () {
+        final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
         if (bloc.revealCell(cellCollectionBloc.state)) {
           _showGameOverDialog(context, cellCollectionBloc);
+        }
+        if (cellCollectionBloc.checkWinCondition()) {
+          _showWinDialog(context, cellCollectionBloc);
         }
       },
       onLongPress: () {
         bloc.toggleFlag();
+        final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
         if (cellCollectionBloc.checkWinCondition()) {
           _showWinDialog(context, cellCollectionBloc);
         }
@@ -191,5 +195,26 @@ class CellWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+// Custom scroll behavior to hide scrollbars
+class NoScrollbarScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildScrollbar(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child; // Return the child without a scrollbar
+  }
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child; // Return the child without overscroll indicators
   }
 }
