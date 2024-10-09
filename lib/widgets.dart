@@ -45,16 +45,19 @@ class CellWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
-
     return GestureDetector(
       onTap: () {
+        final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
         if (bloc.revealCell(cellCollectionBloc.state)) {
           _showGameOverDialog(context, cellCollectionBloc);
+        }
+        if (cellCollectionBloc.checkWinCondition()) {
+          _showWinDialog(context, cellCollectionBloc);
         }
       },
       onLongPress: () {
         bloc.toggleFlag();
+        final cellCollectionBloc = BlocProvider.of<CellCollectionBloc>(context);
         if (cellCollectionBloc.checkWinCondition()) {
           _showWinDialog(context, cellCollectionBloc);
         }
