@@ -12,17 +12,21 @@ class CellBloc {
     _cellStateController.add(_cellState);
   }
 
-  void revealCell(List<CellBloc> allCells) {
+  bool revealCell(List<CellBloc> allCells) {
     if (!_cellState.isRevealed && !_cellState.isFlagged) {
       _cellState.isRevealed = true;
       _cellStateController.add(_cellState);
+
+      if (_cellState.hasMine) return true;
 
       // If the revealed cell has no neighboring mines, reveal neighbors
       if (_cellState.neighborMineCount == 0) {
         _revealNeighbors(allCells);
       }
     }
+    return false;
   }
+
 
   void _revealNeighbors(List<CellBloc> allCells) {
     for (int dx = -1; dx <= 1; dx++) {
@@ -83,6 +87,11 @@ class CellCollectionBloc extends Cubit<List<CellBloc>> {
   void initializeGame() {
     _gameAreaModel = GameAreaModel(10, 10); // Reset to a new game area
     _initializeBlocs(); // Reinitialize the cell blocs
+  }
+
+  bool checkWinCondition() {
+    // Check if all non-mine cells are revealed
+    return state.every((cellBloc) => cellBloc._cellState.isRevealed || cellBloc._cellState.hasMine);
   }
 
   int get gridWidth => _gameAreaModel.width;
