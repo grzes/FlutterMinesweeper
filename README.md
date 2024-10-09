@@ -123,3 +123,9 @@ https://minesweeper.online/img/homepage/intermediate.png
 29. The grid is still dependent on my browser window size I want the cells to be fixed size (20x20)? and centered or scrolled depending on the browser window size
 
 30. The grid still stretches with the app window... :/
+
+31. on macos when I mouse over the right side column the unnecessary scrollbar fades in and I can't click the tiles, is there a way to completely get rid of the scrollbar?
+
+32. looks like singlechildscrollview doesn't have a thumbvisibility
+
+33. Scrollbar is still there, in fact when I removed Scrollbar and SingleChildScrollview the scrollbar still fades in, probably from gridview?
