@@ -39,14 +39,14 @@ class CellWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (bloc.revealCell(cellCollectionBloc.state)) { // Pass all cells
-          print("loss");
+          _showGameOverDialog(context, cellCollectionBloc);
         }
       },
 
       onLongPress: () {
         bloc.toggleFlag();
         if (cellCollectionBloc.checkWinCondition()) {
-          print("win");
+          _showWinDialog(context, cellCollectionBloc);
         }
       },
 
@@ -74,6 +74,51 @@ class CellWidget extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+
+    // Game Over dialog
+  void _showGameOverDialog(BuildContext context, CellCollectionBloc game) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Game Over'),
+          content: Text('You revealed a mine!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                game.initializeGame();
+              },
+              child: Text('Restart'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Win dialog
+  void _showWinDialog(BuildContext context, CellCollectionBloc game) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('You Win!'),
+          content: Text('Congratulations, you revealed all safe cells!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                game.initializeGame();
+              },
+              child: Text('Restart'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

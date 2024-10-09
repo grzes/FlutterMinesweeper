@@ -91,7 +91,9 @@ class CellCollectionBloc extends Cubit<List<CellBloc>> {
 
   bool checkWinCondition() {
     // Check if all non-mine cells are revealed
-    return state.every((cellBloc) => cellBloc._cellState.isRevealed || cellBloc._cellState.hasMine);
+    return state.every((cellBloc) => (
+      (cellBloc._cellState.isRevealed && !cellBloc._cellState.hasMine) ||
+      (cellBloc._cellState.isFlagged && cellBloc._cellState.hasMine)));
   }
 
   int get gridWidth => _gameAreaModel.width;
